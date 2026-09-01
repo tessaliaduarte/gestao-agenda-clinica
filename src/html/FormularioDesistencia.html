@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+
+    <style>
+      :root {
+        --azul: #4f81bd;
+        --azul-escuro: #315f96;
+        --azul-claro: #eaf2fb;
+        --borda: #c9d3df;
+        --texto: #263238;
+        --cinza: #66727d;
+        --erro: #b3261e;
+        --alerta: #8a4b08;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 22px;
+        font-family: Arial, sans-serif;
+        color: var(--texto);
+        background: #ffffff;
+      }
+
+      h1 {
+        margin: 0 0 6px;
+        color: var(--azul-escuro);
+        font-size: 22px;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        color: var(--azul-escuro);
+        font-size: 16px;
+      }
+
+      .subtitulo {
+        margin: 0 0 18px;
+        color: var(--cinza);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .bloco {
+        margin-bottom: 16px;
+        padding: 16px;
+        border: 1px solid var(--borda);
+        border-radius: 8px;
+      }
+
+      .busca {
+        display: flex;
+        gap: 10px;
+      }
+
+      input[type="text"],
+      input[type="date"],
+      textarea {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid var(--borda);
+        border-radius: 6px;
+        color: var(--texto);
+        background: #ffffff;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+      }
+
+      input[type="text"],
+      input[type="date"] {
+        height: 38px;
+      }
+
+      textarea {
+        min-height: 90px;
+        resize: vertical;
+      }
+
+      input[readonly] {
+        color: #4f5b65;
+        background: #f1f3f4;
+      }
+
+      input:focus,
+      textarea:focus {
+        outline: none;
+        border-color: var(--azul);
+        box-shadow:
+          0 0 0 2px
+          rgba(79, 129, 189, 0.16);
+      }
+
+      .busca input {
+        flex: 1;
+      }
+
+      .resultados {
+        display: none;
+        max-height: 330px;
+        margin-top: 12px;
+        overflow-y: auto;
+        border: 1px solid var(--borda);
+        border-radius: 6px;
+      }
+
+      .resultado {
+        padding: 11px 12px;
+        border-bottom: 1px solid #e4e8ec;
+        cursor: pointer;
+      }
+
+      .resultado:last-child {
+        border-bottom: 0;
+      }
+
+      .resultado:hover {
+        background: var(--azul-claro);
+      }
+
+      .resultado-nome {
+        margin-bottom: 4px;
+        color: var(--azul-escuro);
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .resultado-detalhes {
+        color: #58646e;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .mensagem {
+        display: none;
+        margin-bottom: 14px;
+        padding: 10px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        line-height: 1.45;
+        white-space: pre-line;
+      }
+
+      .mensagem.erro {
+        color: var(--erro);
+        background: #fce8e6;
+      }
+
+      .mensagem.informacao {
+        color: var(--azul-escuro);
+        background: var(--azul-claro);
+      }
+
+      #formularioDesistencia {
+        display: none;
+      }
+
+      .paciente {
+        margin-bottom: 16px;
+        padding: 14px;
+        border: 1px solid #bdd0e7;
+        border-radius: 8px;
+        background: var(--azul-claro);
+      }
+
+      .paciente strong {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 16px;
+      }
+
+      .paciente span {
+        display: block;
+        color: #43515d;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .grade {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      .campo {
+        margin-bottom: 14px;
+      }
+
+      .campo-total {
+        grid-column: 1 / -1;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+        font-weight: bold;
+      }
+
+      .resumo {
+        display: grid;
+        grid-template-columns:
+          repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .indicador {
+        padding: 10px;
+        border-radius: 6px;
+        background: #f1f3f4;
+        text-align: center;
+      }
+
+      .indicador strong {
+        display: block;
+        color: var(--azul-escuro);
+        font-size: 18px;
+      }
+
+      .indicador span {
+        color: #58646e;
+        font-size: 11px;
+      }
+
+      .aviso {
+        margin-bottom: 18px;
+        padding: 11px 12px;
+        border-left: 4px solid #d97706;
+        color: var(--alerta);
+        background: #fff7e6;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .acoes {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .acoes-direita {
+        display: flex;
+        gap: 10px;
+      }
+
+      button {
+        min-width: 105px;
+        height: 38px;
+        padding: 0 16px;
+        border: 0;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .secundario {
+        color: #3c4852;
+        background: #e9ecef;
+      }
+
+      .principal {
+        color: #ffffff;
+        background: var(--azul);
+      }
+
+      .perigo {
+        color: #ffffff;
+        background: #b3261e;
+      }
+
+      button:disabled {
+        opacity: 0.62;
+        cursor: wait;
+      }
+
+      @media (max-width: 650px) {
+        .busca {
+          flex-direction: column;
+        }
+
+        .grade,
+        .resumo {
+          grid-template-columns: 1fr;
+        }
+
+        .campo-total {
+          grid-column: auto;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Registrar desistência</h1>
+
+    <p class="subtitulo">
+      Use esta opção somente quando o próprio paciente
+      informar que não deseja continuar o tratamento.
+    </p>
+
+    <div
+      id="mensagem"
+      class="mensagem"
+    ></div>
+
+    <div
+      id="blocoBusca"
+      class="bloco"
+    >
+      <h2>Localizar paciente</h2>
+
+      <div class="busca">
+        <input
+          id="termoBusca"
+          type="text"
+          placeholder="Ex.: PAC-00001, prontuário, CPF ou nome"
+          autocomplete="off"
+        >
+
+        <button
+          id="botaoBuscar"
+          type="button"
+          class="principal"
+        >
+          Buscar
+        </button>
+      </div>
+
+      <div
+        id="resultados"
+        class="resultados"
+      ></div>
+    </div>
+
+    <form id="formularioDesistencia">
+      <div class="paciente">
+        <strong id="nomePaciente"></strong>
+
+        <span
+          id="identificacaoPaciente"
+        ></span>
+
+        <span
+          id="cicloPaciente"
+        ></span>
+      </div>
+
+      <div class="bloco">
+        <h2>Dados da desistência</h2>
+
+        <div class="resumo">
+          <div class="indicador">
+            <strong
+              id="sessoesPrescritas"
+            ></strong>
+
+            <span>Prescritas</span>
+          </div>
+
+          <div class="indicador">
+            <strong
+              id="sessoesRealizadas"
+            ></strong>
+
+            <span>Realizadas</span>
+          </div>
+
+          <div class="indicador">
+            <strong
+              id="sessoesRestantes"
+            ></strong>
+
+            <span>Restantes</span>
+          </div>
+        </div>
+
+        <div class="grade">
+          <div class="campo">
+            <label for="dataDesistencia">
+              Data da desistência
+            </label>
+
+            <input
+              id="dataDesistencia"
+              type="date"
+              required
+            >
+          </div>
+
+          <div class="campo">
+            <label for="statusAtual">
+              Status atual
+            </label>
+
+            <input
+              id="statusAtual"
+              type="text"
+              readonly
+            >
+          </div>
+
+          <div class="campo campo-total">
+            <label for="motivo">
+              Motivo informado — opcional
+            </label>
+
+            <textarea
+              id="motivo"
+              maxlength="500"
+              placeholder="Registre somente o motivo informado pelo paciente."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="aviso">
+          Esta ação tornará o paciente Inativo e cancelará
+          todas as sessões futuras ainda Agendadas do ciclo
+          atual. Sessões anteriores e contagens realizadas
+          serão preservadas. A ação não gera reposição.
+        </div>
+
+        <div class="acoes">
+          <button
+            id="botaoVoltar"
+            type="button"
+            class="secundario"
+          >
+            Voltar à busca
+          </button>
+
+          <div class="acoes-direita">
+            <button
+              type="button"
+              class="secundario"
+              onclick="google.script.host.close()"
+            >
+              Cancelar
+            </button>
+
+            <button
+              id="botaoRegistrar"
+              type="submit"
+              class="perigo"
+            >
+              Registrar desistência
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <script>
+      let dadosPaciente = null;
+
+      document.addEventListener(
+        'DOMContentLoaded',
+        iniciarFormulario
+      );
+
+
+      function iniciarFormulario() {
+        document
+          .getElementById(
+            'botaoBuscar'
+          )
+          .addEventListener(
+            'click',
+            buscarPacientes
+          );
+
+        document
+          .getElementById(
+            'termoBusca'
+          )
+          .addEventListener(
+            'keydown',
+            function(evento) {
+              if (
+                evento.key === 'Enter'
+              ) {
+                evento.preventDefault();
+
+                buscarPacientes();
+              }
+            }
+          );
+
+        document
+          .getElementById(
+            'formularioDesistencia'
+          )
+          .addEventListener(
+            'submit',
+            registrarDesistencia
+          );
+
+        document
+          .getElementById(
+            'botaoVoltar'
+          )
+          .addEventListener(
+            'click',
+            voltarParaBusca
+          );
+
+        document
+          .getElementById(
+            'dataDesistencia'
+          )
+          .max =
+            obterDataHoje();
+
+        setTimeout(function() {
+          document
+            .getElementById(
+              'termoBusca'
+            )
+            .focus();
+        }, 200);
+      }
+
+
+      function buscarPacientes() {
+        ocultarMensagem();
+
+        const termo = document
+          .getElementById(
+            'termoBusca'
+          )
+          .value
+          .trim();
+
+        if (!termo) {
+          exibirMensagem(
+            'Informe um termo para realizar a busca.',
+            'erro'
+          );
+
+          return;
+        }
+
+        bloquearBusca(true);
+
+        google.script.run
+          .withSuccessHandler(
+            function(resultados) {
+              bloquearBusca(false);
+
+              exibirResultados(
+                resultados
+              );
+            }
+          )
+          .withFailureHandler(
+            function(erro) {
+              bloquearBusca(false);
+
+              exibirMensagem(
+                obterMensagemErro(erro),
+                'erro'
+              );
+            }
+          )
+          .buscarPacientesParaDesistencia(
+            termo
+          );
+      }
+
+
+      function exibirResultados(
+        resultados
+      ) {
+        const area =
+          document.getElementById(
+            'resultados'
+          );
+
+        area.innerHTML = '';
+
+        area.style.display =
+          'block';
+
+        if (
+          !resultados ||
+          resultados.length === 0
+        ) {
+          const vazio =
+            document.createElement(
+              'div'
+            );
+
+          vazio.className =
+            'resultado-detalhes';
+
+          vazio.style.padding =
+            '12px';
+
+          vazio.textContent =
+            'Nenhum paciente foi encontrado.';
+
+          area.appendChild(vazio);
+
+          return;
+        }
+
+        resultados.forEach(
+          function(paciente) {
+            const item =
+              document.createElement(
+                'div'
+              );
+
+            item.className =
+              'resultado';
+
+            const nome =
+              document.createElement(
+                'div'
+              );
+
+            nome.className =
+              'resultado-nome';
+
+            nome.textContent =
+              paciente.nome;
+
+            const detalhes =
+              document.createElement(
+                'div'
+              );
+
+            detalhes.className =
+              'resultado-detalhes';
+
+            detalhes.textContent =
+              'ID: ' +
+              paciente.id +
+              ' | Prontuário: ' +
+              paciente.prontuario +
+              (
+                paciente.cpf
+                  ? ' | CPF: ' +
+                    paciente.cpf
+                  : ''
+              ) +
+              ' | Status: ' +
+              (
+                paciente.status ||
+                '-'
+              ) +
+              ' | Sessões: ' +
+              paciente.sessoesRealizadas +
+              '/' +
+              paciente.sessoesPrescritas;
+
+            item.appendChild(nome);
+
+            item.appendChild(
+              detalhes
+            );
+
+            item.addEventListener(
+              'click',
+              function() {
+                carregarPaciente(
+                  paciente.id
+                );
+              }
+            );
+
+            area.appendChild(item);
+          }
+        );
+      }
+
+
+      function carregarPaciente(
+        idPaciente
+      ) {
+        exibirMensagem(
+          'Carregando dados do paciente...',
+          'informacao'
+        );
+
+        google.script.run
+          .withSuccessHandler(
+            function(dados) {
+              dadosPaciente =
+                dados;
+
+              preencherFormulario(
+                dados
+              );
+
+              ocultarMensagem();
+
+              document
+                .getElementById(
+                  'blocoBusca'
+                )
+                .style
+                .display =
+                  'none';
+
+              document
+                .getElementById(
+                  'formularioDesistencia'
+                )
+                .style
+                .display =
+                  'block';
+            }
+          )
+          .withFailureHandler(
+            function(erro) {
+              exibirMensagem(
+                obterMensagemErro(erro),
+                'erro'
+              );
+            }
+          )
+          .obterPacienteParaDesistencia(
+            idPaciente
+          );
+      }
+
+
+      function preencherFormulario(
+        dados
+      ) {
+        document
+          .getElementById(
+            'nomePaciente'
+          )
+          .textContent =
+            dados.nome;
+
+        document
+          .getElementById(
+            'identificacaoPaciente'
+          )
+          .textContent =
+            'Prontuário: ' +
+            dados.prontuario +
+            ' | ID: ' +
+            dados.idPaciente;
+
+        document
+          .getElementById(
+            'cicloPaciente'
+          )
+          .textContent =
+            'Ciclo atual: ' +
+            dados.cicloNumero +
+            (
+              dados.dataInicio
+                ? ' | Início: ' +
+                  dados.dataInicio
+                : ''
+            ) +
+            (
+              dados.dataTermino
+                ? ' | Término previsto: ' +
+                  dados.dataTermino
+                : ''
+            );
+
+        document
+          .getElementById(
+            'sessoesPrescritas'
+          )
+          .textContent =
+            dados.sessoesPrescritas;
+
+        document
+          .getElementById(
+            'sessoesRealizadas'
+          )
+          .textContent =
+            dados.sessoesRealizadas;
+
+        document
+          .getElementById(
+            'sessoesRestantes'
+          )
+          .textContent =
+            dados.sessoesRestantes;
+
+        document
+          .getElementById(
+            'statusAtual'
+          )
+          .value =
+            dados.status;
+
+        document
+          .getElementById(
+            'dataDesistencia'
+          )
+          .value =
+            obterDataHoje();
+
+        document
+          .getElementById(
+            'motivo'
+          )
+          .value = '';
+      }
+
+
+      function registrarDesistencia(
+        evento
+      ) {
+        evento.preventDefault();
+
+        ocultarMensagem();
+
+        if (!dadosPaciente) {
+          exibirMensagem(
+            'Selecione novamente o paciente.',
+            'erro'
+          );
+
+          return;
+        }
+
+        const dataDesistencia =
+          document
+            .getElementById(
+              'dataDesistencia'
+            )
+            .value;
+
+        if (!dataDesistencia) {
+          exibirMensagem(
+            'Informe a data da desistência.',
+            'erro'
+          );
+
+          return;
+        }
+
+        const motivo =
+          document
+            .getElementById(
+              'motivo'
+            )
+            .value
+            .trim();
+
+        const confirmou = confirm(
+          'Confirma a desistência de ' +
+          dadosPaciente.nome +
+          '?\n\n' +
+          'O paciente ficará Inativo e todas as sessões futuras ainda Agendadas do ciclo atual serão canceladas.'
+        );
+
+        if (!confirmou) {
+          return;
+        }
+
+        alternarProcessamento(true);
+
+        google.script.run
+          .withSuccessHandler(
+            concluirRegistro
+          )
+          .withFailureHandler(
+            tratarErroRegistro
+          )
+          .registrarDesistenciaTratamento({
+            idPaciente:
+              dadosPaciente.idPaciente,
+
+            idCiclo:
+              dadosPaciente.idCiclo,
+
+            cicloNumero:
+              dadosPaciente.cicloNumero,
+
+            dataDesistencia:
+              dataDesistencia,
+
+            motivo:
+              motivo
+          });
+      }
+
+
+      function concluirRegistro(
+        resultado
+      ) {
+        alternarProcessamento(false);
+
+        if (
+          !resultado ||
+          resultado.sucesso !== true
+        ) {
+          exibirMensagem(
+            'Não foi possível registrar a desistência.',
+            'erro'
+          );
+
+          return;
+        }
+
+        alert(resultado.mensagem);
+
+        google.script.host.close();
+      }
+
+
+      function tratarErroRegistro(
+        erro
+      ) {
+        alternarProcessamento(false);
+
+        exibirMensagem(
+          obterMensagemErro(erro),
+          'erro'
+        );
+      }
+
+
+      function voltarParaBusca() {
+        dadosPaciente = null;
+
+        ocultarMensagem();
+
+        document
+          .getElementById(
+            'formularioDesistencia'
+          )
+          .style
+          .display =
+            'none';
+
+        document
+          .getElementById(
+            'blocoBusca'
+          )
+          .style
+          .display =
+            'block';
+
+        setTimeout(function() {
+          document
+            .getElementById(
+              'termoBusca'
+            )
+            .focus();
+        }, 100);
+      }
+
+
+      function bloquearBusca(
+        bloqueado
+      ) {
+        const botao =
+          document.getElementById(
+            'botaoBuscar'
+          );
+
+        botao.disabled =
+          bloqueado;
+
+        botao.textContent =
+          bloqueado
+            ? 'Buscando...'
+            : 'Buscar';
+      }
+
+
+      function alternarProcessamento(
+        processando
+      ) {
+        const botao =
+          document.getElementById(
+            'botaoRegistrar'
+          );
+
+        botao.disabled =
+          processando;
+
+        botao.textContent =
+          processando
+            ? 'Registrando...'
+            : 'Registrar desistência';
+      }
+
+
+      function exibirMensagem(
+        texto,
+        tipo
+      ) {
+        const mensagem =
+          document.getElementById(
+            'mensagem'
+          );
+
+        mensagem.className =
+          'mensagem ' +
+          tipo;
+
+        mensagem.textContent =
+          texto;
+
+        mensagem.style.display =
+          'block';
+      }
+
+
+      function ocultarMensagem() {
+        const mensagem =
+          document.getElementById(
+            'mensagem'
+          );
+
+        mensagem.textContent = '';
+
+        mensagem.style.display =
+          'none';
+      }
+
+
+      function obterMensagemErro(
+        erro
+      ) {
+        return erro && erro.message
+          ? erro.message
+          : String(erro);
+      }
+
+
+      function obterDataHoje() {
+        const hoje = new Date();
+
+        const ano =
+          hoje.getFullYear();
+
+        const mes = String(
+          hoje.getMonth() + 1
+        ).padStart(2, '0');
+
+        const dia = String(
+          hoje.getDate()
+        ).padStart(2, '0');
+
+        return (
+          ano +
+          '-' +
+          mes +
+          '-' +
+          dia
+        );
+      }
+    </script>
+  </body>
+</html>
