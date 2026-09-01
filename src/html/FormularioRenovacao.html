@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+
+    <style>
+      :root {
+        --azul: #4f81bd;
+        --azul-escuro: #315f96;
+        --azul-claro: #eaf2fb;
+        --borda: #c9d3df;
+        --texto: #263238;
+        --cinza: #66727d;
+        --erro: #b3261e;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 22px;
+        font-family: Arial, sans-serif;
+        color: var(--texto);
+        background: #ffffff;
+      }
+
+      h1 {
+        margin: 0 0 6px;
+        color: var(--azul-escuro);
+        font-size: 22px;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        color: var(--azul-escuro);
+        font-size: 16px;
+      }
+
+      .subtitulo {
+        margin: 0 0 18px;
+        color: var(--cinza);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .bloco {
+        margin-bottom: 16px;
+        padding: 16px;
+        border: 1px solid var(--borda);
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .busca {
+        display: flex;
+        gap: 10px;
+      }
+
+      .busca input {
+        flex: 1;
+      }
+
+      input[type="number"],
+      input[type="text"],
+      select {
+        width: 100%;
+        height: 38px;
+        padding: 8px 10px;
+        border: 1px solid var(--borda);
+        border-radius: 6px;
+        color: var(--texto);
+        background: #ffffff;
+        font-size: 14px;
+      }
+
+      input[readonly] {
+        color: #4f5b65;
+        background: #f1f3f4;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--azul);
+        box-shadow:
+          0 0 0 2px
+          rgba(79, 129, 189, 0.16);
+      }
+
+      .resultados {
+        display: none;
+        max-height: 330px;
+        margin-top: 12px;
+        overflow-y: auto;
+        border: 1px solid var(--borda);
+        border-radius: 6px;
+      }
+
+      .resultado {
+        padding: 11px 12px;
+        border-bottom: 1px solid #e4e8ec;
+        cursor: pointer;
+      }
+
+      .resultado:last-child {
+        border-bottom: 0;
+      }
+
+      .resultado:hover {
+        background: var(--azul-claro);
+      }
+
+      .resultado-nome {
+        margin-bottom: 4px;
+        color: var(--azul-escuro);
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .resultado-detalhes {
+        color: #58646e;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .paciente {
+        margin-bottom: 16px;
+        padding: 14px;
+        border: 1px solid #bdd0e7;
+        border-radius: 8px;
+        background: var(--azul-claro);
+      }
+
+      .paciente strong {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 16px;
+      }
+
+      .paciente span {
+        display: block;
+        color: #43515d;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      #formularioPlanejamento {
+        display: none;
+      }
+
+      .grade {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      .campo {
+        margin-bottom: 14px;
+      }
+
+      .campo-total {
+        grid-column: 1 / -1;
+      }
+
+      label,
+      .rotulo {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+        font-weight: bold;
+      }
+
+      .dias {
+        display: grid;
+        grid-template-columns:
+          repeat(5, 1fr);
+        gap: 8px;
+      }
+
+      .dia {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 38px;
+        margin: 0;
+        border: 1px solid var(--borda);
+        border-radius: 6px;
+        background: #ffffff;
+        font-weight: normal;
+        cursor: pointer;
+      }
+
+      .dia:has(input:checked) {
+        border-color: var(--azul);
+        color: var(--azul-escuro);
+        background: var(--azul-claro);
+        font-weight: bold;
+      }
+
+      .aviso {
+        margin: 4px 0 18px;
+        padding: 11px 12px;
+        border-left: 4px solid var(--azul);
+        background: #f6f9fc;
+        color: #44515c;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .mensagem {
+        display: none;
+        margin-bottom: 14px;
+        padding: 10px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        line-height: 1.45;
+        white-space: pre-line;
+      }
+
+      .mensagem.erro {
+        color: var(--erro);
+        background: #fce8e6;
+      }
+
+      .mensagem.informacao {
+        color: #315f96;
+        background: #eaf2fb;
+      }
+
+      .acoes {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .acoes-direita {
+        display: flex;
+        gap: 10px;
+      }
+
+      button {
+        min-width: 105px;
+        height: 38px;
+        padding: 0 16px;
+        border: 0;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .secundario {
+        color: #3c4852;
+        background: #e9ecef;
+      }
+
+      .principal {
+        color: #ffffff;
+        background: var(--azul);
+      }
+
+      .principal:hover {
+        background: var(--azul-escuro);
+      }
+
+      button:disabled {
+        opacity: 0.62;
+        cursor: wait;
+      }
+
+      @media (max-width: 650px) {
+        .grade {
+          grid-template-columns: 1fr;
+        }
+
+        .campo-total {
+          grid-column: auto;
+        }
+
+        .busca {
+          flex-direction: column;
+        }
+
+        .dias {
+          grid-template-columns:
+            repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Planejar renovação</h1>
+
+    <p class="subtitulo">
+      Localize o paciente pelo ID, prontuário, CPF ou nome.
+      Depois, informe o planejamento do novo ciclo.
+    </p>
+
+    <div
+      id="mensagem"
+      class="mensagem"
+    ></div>
+
+    <div
+      id="blocoBusca"
+      class="bloco"
+    >
+      <h2>Localizar paciente</h2>
+
+      <div class="busca">
+        <input
+          id="termoBusca"
+          type="text"
+          placeholder="Ex.: PAC-00001, prontuário, CPF ou nome"
+          autocomplete="off"
+        >
+
+        <button
+          id="botaoBuscar"
+          type="button"
+          class="principal"
+        >
+          Buscar
+        </button>
+      </div>
+
+      <div
+        id="resultados"
+        class="resultados"
+      ></div>
+    </div>
+
+    <form id="formularioPlanejamento">
+      <div class="paciente">
+        <strong id="nomePaciente"></strong>
+
+        <span
+          id="identificacaoPaciente"
+        ></span>
+      </div>
+
+      <div class="bloco">
+        <h2>Planejamento do novo ciclo</h2>
+
+        <div class="grade">
+          <div class="campo">
+            <label for="cicloAnterior">
+              Ciclo anterior
+            </label>
+
+            <input
+              id="cicloAnterior"
+              type="text"
+              readonly
+            >
+          </div>
+
+          <div class="campo">
+            <label for="novoCiclo">
+              Novo ciclo
+            </label>
+
+            <input
+              id="novoCiclo"
+              type="text"
+              readonly
+            >
+          </div>
+
+          <div class="campo">
+            <label for="sessoesAnteriores">
+              Sessões do ciclo anterior
+            </label>
+
+            <input
+              id="sessoesAnteriores"
+              type="text"
+              readonly
+            >
+          </div>
+
+          <div class="campo">
+            <label for="sessoesPrescritas">
+              Sessões do novo ciclo
+            </label>
+
+            <input
+              id="sessoesPrescritas"
+              type="number"
+              min="1"
+              max="20"
+              step="1"
+              required
+            >
+          </div>
+
+          <div class="campo campo-total">
+            <span class="rotulo">
+              Dias da semana
+            </span>
+
+            <div class="dias">
+              <label class="dia">
+                <input
+                  type="checkbox"
+                  name="dia"
+                  value="1"
+                >
+                Seg
+              </label>
+
+              <label class="dia">
+                <input
+                  type="checkbox"
+                  name="dia"
+                  value="2"
+                >
+                Ter
+              </label>
+
+              <label class="dia">
+                <input
+                  type="checkbox"
+                  name="dia"
+                  value="3"
+                >
+                Qua
+              </label>
+
+              <label class="dia">
+                <input
+                  type="checkbox"
+                  name="dia"
+                  value="4"
+                >
+                Qui
+              </label>
+
+              <label class="dia">
+                <input
+                  type="checkbox"
+                  name="dia"
+                  value="5"
+                >
+                Sex
+              </label>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="horario">
+              Horário
+            </label>
+
+            <select
+              id="horario"
+              required
+            ></select>
+          </div>
+
+          <div class="campo">
+            <label for="tipoAtendimento">
+              Tipo de atendimento
+            </label>
+
+            <select
+              id="tipoAtendimento"
+              required
+            ></select>
+          </div>
+
+          <div class="campo campo-total">
+            <label for="fisioterapeuta">
+              Fisioterapeuta
+            </label>
+
+            <select
+              id="fisioterapeuta"
+              required
+            ></select>
+          </div>
+        </div>
+
+        <div class="aviso">
+          Ao salvar, Sessões Realizadas será reiniciada em
+          zero apenas no cadastro do novo ciclo. Todas as
+          sessões anteriores continuarão registradas em
+          Agendamentos.
+        </div>
+
+        <div class="acoes">
+          <button
+            id="botaoVoltar"
+            type="button"
+            class="secundario"
+          >
+            Voltar à busca
+          </button>
+
+          <div class="acoes-direita">
+            <button
+              type="button"
+              class="secundario"
+              onclick="google.script.host.close()"
+            >
+              Cancelar
+            </button>
+
+            <button
+              id="botaoSalvar"
+              type="submit"
+              class="principal"
+            >
+              Salvar planejamento
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <script>
+      let dadosPaciente = null;
+
+      document.addEventListener(
+        'DOMContentLoaded',
+        iniciarFormulario
+      );
+
+
+      function iniciarFormulario() {
+        document
+          .getElementById('botaoBuscar')
+          .addEventListener(
+            'click',
+            buscarPacientes
+          );
+
+        document
+          .getElementById('termoBusca')
+          .addEventListener(
+            'keydown',
+            function(evento) {
+              if (evento.key === 'Enter') {
+                evento.preventDefault();
+                buscarPacientes();
+              }
+            }
+          );
+
+        document
+          .getElementById(
+            'formularioPlanejamento'
+          )
+          .addEventListener(
+            'submit',
+            salvar
+          );
+
+        document
+          .getElementById('botaoVoltar')
+          .addEventListener(
+            'click',
+            voltarParaBusca
+          );
+
+        setTimeout(function() {
+          document
+            .getElementById('termoBusca')
+            .focus();
+        }, 200);
+      }
+
+
+      function buscarPacientes() {
+        ocultarMensagem();
+
+        const termo = document
+          .getElementById('termoBusca')
+          .value
+          .trim();
+
+        if (!termo) {
+          exibirMensagem(
+            'Informe um termo para realizar a busca.',
+            'erro'
+          );
+
+          return;
+        }
+
+        bloquearBusca(true);
+
+        google.script.run
+          .withSuccessHandler(
+            function(resultados) {
+              bloquearBusca(false);
+
+              exibirResultados(
+                resultados
+              );
+            }
+          )
+          .withFailureHandler(
+            function(erro) {
+              bloquearBusca(false);
+
+              exibirMensagem(
+                obterMensagemErro(erro),
+                'erro'
+              );
+            }
+          )
+          .buscarPacientesParaRenovacao(
+            termo
+          );
+      }
+
+
+      function exibirResultados(resultados) {
+        const area =
+          document.getElementById(
+            'resultados'
+          );
+
+        area.innerHTML = '';
+        area.style.display = 'block';
+
+        if (
+          !resultados ||
+          resultados.length === 0
+        ) {
+          const vazio =
+            document.createElement('div');
+
+          vazio.className =
+            'resultado-detalhes';
+
+          vazio.style.padding = '12px';
+
+          vazio.textContent =
+            'Nenhum paciente foi encontrado.';
+
+          area.appendChild(vazio);
+
+          return;
+        }
+
+        resultados.forEach(
+          function(paciente) {
+            const item =
+              document.createElement(
+                'div'
+              );
+
+            item.className = 'resultado';
+
+            const nome =
+              document.createElement(
+                'div'
+              );
+
+            nome.className =
+              'resultado-nome';
+
+            nome.textContent =
+              paciente.nome;
+
+            const detalhes =
+              document.createElement(
+                'div'
+              );
+
+            detalhes.className =
+              'resultado-detalhes';
+
+            detalhes.textContent =
+              'ID: ' +
+              paciente.id +
+              ' | Prontuário: ' +
+              paciente.prontuario +
+              (
+                paciente.cpf
+                  ? ' | CPF: ' +
+                    paciente.cpf
+                  : ''
+              ) +
+              (
+                paciente.status
+                  ? ' | Status: ' +
+                    paciente.status
+                  : ''
+              ) +
+              (
+                paciente.desfecho
+                  ? ' | Desfecho: ' +
+                    paciente.desfecho
+                  : ''
+              );
+
+            item.appendChild(nome);
+            item.appendChild(detalhes);
+
+            item.addEventListener(
+              'click',
+              function() {
+                carregarPaciente(
+                  paciente.id
+                );
+              }
+            );
+
+            area.appendChild(item);
+          }
+        );
+      }
+
+
+      function carregarPaciente(
+        idPaciente
+      ) {
+        exibirMensagem(
+          'Carregando dados da renovação...',
+          'informacao'
+        );
+
+        google.script.run
+          .withSuccessHandler(
+            function(dados) {
+              dadosPaciente = dados;
+
+              preencherPlanejamento(
+                dados
+              );
+
+              ocultarMensagem();
+
+              document.getElementById(
+                'blocoBusca'
+              ).style.display = 'none';
+
+              document.getElementById(
+                'formularioPlanejamento'
+              ).style.display = 'block';
+            }
+          )
+          .withFailureHandler(
+            function(erro) {
+              exibirMensagem(
+                obterMensagemErro(erro),
+                'erro'
+              );
+            }
+          )
+          .obterPacienteParaPlanejamentoRenovacao(
+            idPaciente
+          );
+      }
+
+
+      function preencherPlanejamento(
+        dados
+      ) {
+        document
+          .getElementById(
+            'nomePaciente'
+          )
+          .textContent =
+            dados.nome;
+
+        document
+          .getElementById(
+            'identificacaoPaciente'
+          )
+          .textContent =
+            'Prontuário: ' +
+            dados.prontuario +
+            ' | ID: ' +
+            dados.idPaciente;
+
+        document
+          .getElementById(
+            'cicloAnterior'
+          )
+          .value =
+            'Ciclo ' +
+            dados.cicloAnterior;
+
+        document
+          .getElementById(
+            'novoCiclo'
+          )
+          .value =
+            'Ciclo ' +
+            dados.novoCiclo;
+
+        document
+          .getElementById(
+            'sessoesAnteriores'
+          )
+          .value =
+            dados.sessoesAnteriores;
+
+        document
+          .getElementById(
+            'sessoesPrescritas'
+          )
+          .value = '';
+
+        preencherSelect(
+          'horario',
+          dados.horarios,
+          dados.horarioAtual,
+          'Selecione o horário'
+        );
+
+        preencherSelect(
+          'tipoAtendimento',
+          dados.tiposAtendimento,
+          dados.tipoAtual,
+          'Selecione o tipo'
+        );
+
+        preencherSelect(
+          'fisioterapeuta',
+          dados.fisioterapeutas,
+          dados.fisioterapeutaAtual,
+          'Selecione o fisioterapeuta'
+        );
+
+        document
+          .querySelectorAll(
+            'input[name="dia"]'
+          )
+          .forEach(function(campo) {
+            campo.checked =
+              dados.diasAtuais[
+                campo.value
+              ] === true;
+          });
+      }
+
+
+      function preencherSelect(
+        id,
+        opcoes,
+        valorAtual,
+        textoInicial
+      ) {
+        const select =
+          document.getElementById(id);
+
+        select.innerHTML = '';
+
+        const inicial =
+          document.createElement(
+            'option'
+          );
+
+        inicial.value = '';
+
+        inicial.textContent =
+          textoInicial;
+
+        select.appendChild(inicial);
+
+        opcoes.forEach(function(valor) {
+          const option =
+            document.createElement(
+              'option'
+            );
+
+          option.value = valor;
+
+          option.textContent = valor;
+
+          if (
+            normalizar(valor) ===
+            normalizar(valorAtual)
+          ) {
+            option.selected = true;
+          }
+
+          select.appendChild(option);
+        });
+      }
+
+
+      function salvar(evento) {
+        evento.preventDefault();
+
+        ocultarMensagem();
+
+        if (!dadosPaciente) {
+          exibirMensagem(
+            'Selecione novamente o paciente.',
+            'erro'
+          );
+
+          return;
+        }
+
+        const sessoesPrescritas =
+          Number(
+            document.getElementById(
+              'sessoesPrescritas'
+            ).value
+          );
+
+        if (
+          !Number.isInteger(
+            sessoesPrescritas
+          ) ||
+          sessoesPrescritas < 1 ||
+          sessoesPrescritas > 20
+        ) {
+          exibirMensagem(
+            'Informe de 1 a 20 sessões para o novo ciclo.',
+            'erro'
+          );
+
+          return;
+        }
+
+        const diasSemana = {
+          1: false,
+          2: false,
+          3: false,
+          4: false,
+          5: false
+        };
+
+        document
+          .querySelectorAll(
+            'input[name="dia"]:checked'
+          )
+          .forEach(function(campo) {
+            diasSemana[
+              campo.value
+            ] = true;
+          });
+
+        const possuiDia =
+          Object.keys(
+            diasSemana
+          ).some(function(dia) {
+            return diasSemana[dia];
+          });
+
+        if (!possuiDia) {
+          exibirMensagem(
+            'Selecione pelo menos um dia da semana.',
+            'erro'
+          );
+
+          return;
+        }
+
+        const horario =
+          document.getElementById(
+            'horario'
+          ).value;
+
+        const tipoAtendimento =
+          document.getElementById(
+            'tipoAtendimento'
+          ).value;
+
+        const fisioterapeuta =
+          document.getElementById(
+            'fisioterapeuta'
+          ).value;
+
+        if (
+          !horario ||
+          !tipoAtendimento ||
+          !fisioterapeuta
+        ) {
+          exibirMensagem(
+            'Preencha horário, tipo de atendimento e fisioterapeuta.',
+            'erro'
+          );
+
+          return;
+        }
+
+        alternarProcessamento(true);
+
+        google.script.run
+          .withSuccessHandler(
+            concluirSalvamento
+          )
+          .withFailureHandler(
+            tratarErroSalvamento
+          )
+          .salvarPlanejamentoRenovacao({
+            idPaciente:
+              dadosPaciente.idPaciente,
+
+            novoCiclo:
+              dadosPaciente.novoCiclo,
+
+            sessoesPrescritas:
+              sessoesPrescritas,
+
+            diasSemana:
+              diasSemana,
+
+            horario:
+              horario,
+
+            tipoAtendimento:
+              tipoAtendimento,
+
+            fisioterapeuta:
+              fisioterapeuta
+          });
+      }
+
+
+      function concluirSalvamento(
+        resultado
+      ) {
+        alternarProcessamento(false);
+
+        if (
+          !resultado ||
+          resultado.sucesso !== true
+        ) {
+          exibirMensagem(
+            'Não foi possível salvar o planejamento.',
+            'erro'
+          );
+
+          return;
+        }
+
+        alert(resultado.mensagem);
+
+        google.script.host.close();
+      }
+
+
+      function tratarErroSalvamento(
+        erro
+      ) {
+        alternarProcessamento(false);
+
+        exibirMensagem(
+          obterMensagemErro(erro),
+          'erro'
+        );
+      }
+
+
+      function voltarParaBusca() {
+        dadosPaciente = null;
+
+        ocultarMensagem();
+
+        document.getElementById(
+          'formularioPlanejamento'
+        ).style.display = 'none';
+
+        document.getElementById(
+          'blocoBusca'
+        ).style.display = 'block';
+
+        setTimeout(function() {
+          document
+            .getElementById(
+              'termoBusca'
+            )
+            .focus();
+        }, 100);
+      }
+
+
+      function bloquearBusca(
+        bloqueado
+      ) {
+        const botao =
+          document.getElementById(
+            'botaoBuscar'
+          );
+
+        botao.disabled = bloqueado;
+
+        botao.textContent =
+          bloqueado
+            ? 'Buscando...'
+            : 'Buscar';
+      }
+
+
+      function alternarProcessamento(
+        processando
+      ) {
+        const botao =
+          document.getElementById(
+            'botaoSalvar'
+          );
+
+        botao.disabled =
+          processando;
+
+        botao.textContent =
+          processando
+            ? 'Salvando...'
+            : 'Salvar planejamento';
+      }
+
+
+      function exibirMensagem(
+        texto,
+        tipo
+      ) {
+        const mensagem =
+          document.getElementById(
+            'mensagem'
+          );
+
+        mensagem.className =
+          'mensagem ' + tipo;
+
+        mensagem.textContent =
+          texto;
+
+        mensagem.style.display =
+          'block';
+      }
+
+
+      function ocultarMensagem() {
+        const mensagem =
+          document.getElementById(
+            'mensagem'
+          );
+
+        mensagem.textContent = '';
+
+        mensagem.style.display =
+          'none';
+      }
+
+
+      function obterMensagemErro(
+        erro
+      ) {
+        return erro && erro.message
+          ? erro.message
+          : String(erro);
+      }
+
+
+      function normalizar(valor) {
+        return String(valor || '')
+          .trim()
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(
+            /[\u0300-\u036f]/g,
+            ''
+          );
+      }
+    </script>
+  </body>
+</html>
