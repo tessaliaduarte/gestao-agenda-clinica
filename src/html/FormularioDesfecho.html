@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 24px;
+        background: #f4f7fb;
+        color: #243447;
+        font-family: Arial, sans-serif;
+      }
+
+      h1 {
+        margin: 0 0 6px;
+        color: #315f96;
+        font-size: 23px;
+      }
+
+      .subtitulo {
+        margin: 0 0 22px;
+        color: #5f6f80;
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .painel {
+        margin-bottom: 18px;
+        padding: 18px;
+        border: 1px solid #d9e2ec;
+        border-radius: 10px;
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(33, 54, 78, 0.07);
+      }
+
+      .rotulo {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 13px;
+        font-weight: bold;
+      }
+
+      .linha-pesquisa {
+        display: flex;
+        gap: 10px;
+      }
+
+      input[type="text"],
+      select {
+        width: 100%;
+        min-height: 42px;
+        padding: 10px 12px;
+        border: 1px solid #b7c5d3;
+        border-radius: 7px;
+        background: #ffffff;
+        color: #243447;
+        font-size: 14px;
+      }
+
+      input[type="text"]:focus,
+      select:focus {
+        border-color: #4f81bd;
+        outline: 2px solid rgba(79, 129, 189, 0.15);
+      }
+
+      button {
+        min-height: 42px;
+        padding: 10px 18px;
+        border: 0;
+        border-radius: 7px;
+        background: #4f81bd;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #3f6fa8;
+      }
+
+      button:disabled {
+        background: #aebdca;
+        cursor: not-allowed;
+      }
+
+      .botao-secundario {
+        background: #e8eef5;
+        color: #315f96;
+      }
+
+      .botao-secundario:hover {
+        background: #dae5f0;
+      }
+
+      .resultados {
+        display: grid;
+        gap: 9px;
+        margin-top: 14px;
+      }
+
+      .resultado {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #d5e0eb;
+        border-radius: 8px;
+        background: #f9fbfd;
+        color: #243447;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .resultado:hover {
+        border-color: #4f81bd;
+        background: #edf4fb;
+      }
+
+      .resultado-nome {
+        display: block;
+        margin-bottom: 5px;
+        color: #244f7c;
+        font-size: 15px;
+        font-weight: bold;
+      }
+
+      .resultado-dados {
+        display: block;
+        color: #607080;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .grade {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .campo {
+        padding: 11px;
+        border-radius: 7px;
+        background: #f5f8fb;
+      }
+
+      .campo-titulo {
+        display: block;
+        margin-bottom: 4px;
+        color: #6b7b8b;
+        font-size: 11px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+
+      .campo-valor {
+        display: block;
+        color: #243447;
+        font-size: 14px;
+        overflow-wrap: anywhere;
+      }
+
+      .acoes {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .mensagem {
+        margin-top: 14px;
+        padding: 12px;
+        border-radius: 7px;
+        font-size: 13px;
+        line-height: 1.45;
+        white-space: pre-line;
+      }
+
+      .mensagem-info {
+        background: #eaf2fb;
+        color: #315f96;
+      }
+
+      .mensagem-erro {
+        background: #fdeaea;
+        color: #a12626;
+      }
+
+      .mensagem-sucesso {
+        background: #e8f5e9;
+        color: #246b2c;
+      }
+
+      .oculto {
+        display: none;
+      }
+
+      @media (max-width: 620px) {
+        body {
+          padding: 16px;
+        }
+
+        .linha-pesquisa,
+        .acoes {
+          flex-direction: column;
+        }
+
+        .grade {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Registrar desfecho</h1>
+
+    <p class="subtitulo">
+      Pesquise o paciente pelo nome, parte do nome, ID,
+      prontuário ou CPF. Confira os dados antes de confirmar.
+    </p>
+
+    <section
+      id="painelPesquisa"
+      class="painel"
+    >
+      <label
+        class="rotulo"
+        for="termoBusca"
+      >
+        Pesquisar paciente
+      </label>
+
+      <div class="linha-pesquisa">
+        <input
+          id="termoBusca"
+          type="text"
+          autocomplete="off"
+          placeholder="Nome, ID, prontuário ou CPF"
+        >
+
+        <button
+          id="botaoPesquisar"
+          type="button"
+          onclick="pesquisarPacientes()"
+        >
+          Pesquisar
+        </button>
+      </div>
+
+      <div
+        id="mensagemPesquisa"
+        class="mensagem mensagem-info oculto"
+      ></div>
+
+      <div
+        id="resultados"
+        class="resultados"
+      ></div>
+    </section>
+        <section
+      id="painelPaciente"
+      class="painel oculto"
+    >
+      <div class="grade">
+        <div class="campo">
+          <span class="campo-titulo">Paciente</span>
+          <span
+            id="pacienteNome"
+            class="campo-valor"
+          ></span>
+        </div>
+
+        <div class="campo">
+          <span class="campo-titulo">ID</span>
+          <span
+            id="pacienteId"
+            class="campo-valor"
+          ></span>
+        </div>
+
+        <div class="campo">
+          <span class="campo-titulo">Prontuário</span>
+          <span
+            id="pacienteProntuario"
+            class="campo-valor"
+          ></span>
+        </div>
+
+        <div class="campo">
+          <span class="campo-titulo">CPF</span>
+          <span
+            id="pacienteCpf"
+            class="campo-valor"
+          ></span>
+        </div>
+
+        <div class="campo">
+          <span class="campo-titulo">Telefone</span>
+          <span
+            id="pacienteTelefone"
+            class="campo-valor"
+          ></span>
+        </div>
+
+        <div class="campo">
+          <span class="campo-titulo">Status atual</span>
+          <span
+            id="pacienteStatus"
+            class="campo-valor"
+          ></span>
+        </div>
+
+        <div class="campo">
+          <span class="campo-titulo">Fisioterapeuta</span>
+          <span
+            id="pacienteFisioterapeuta"
+            class="campo-valor"
+          ></span>
+        </div>
+
+        <div class="campo">
+          <span class="campo-titulo">Ciclo atual</span>
+          <span
+            id="pacienteCiclo"
+            class="campo-valor"
+          ></span>
+        </div>
+
+        <div class="campo">
+          <span class="campo-titulo">Sessões prescritas</span>
+          <span
+            id="pacientePrescritas"
+            class="campo-valor"
+          ></span>
+        </div>
+
+        <div class="campo">
+          <span class="campo-titulo">Sessões realizadas</span>
+          <span
+            id="pacienteRealizadas"
+            class="campo-valor"
+          ></span>
+        </div>
+
+        <div class="campo">
+          <span class="campo-titulo">Sessões restantes</span>
+          <span
+            id="pacienteRestantes"
+            class="campo-valor"
+          ></span>
+        </div>
+
+        <div class="campo">
+          <span class="campo-titulo">Desfecho atual</span>
+          <span
+            id="pacienteDesfecho"
+            class="campo-valor"
+          ></span>
+        </div>
+      </div>
+
+      <div style="margin-top: 18px;">
+        <label
+          class="rotulo"
+          for="opcaoDesfecho"
+        >
+          Novo desfecho
+        </label>
+
+        <select id="opcaoDesfecho">
+          <option value="">
+            Selecione
+          </option>
+
+          <option value="1">
+            Alta
+          </option>
+
+          <option value="2">
+            Encaminhamento para APS
+          </option>
+
+          <option value="3">
+            Renovação
+          </option>
+
+          <option value="4">
+            Alta por abandono
+          </option>
+        </select>
+      </div>
+
+      <div
+        id="mensagemRegistro"
+        class="mensagem mensagem-info oculto"
+      ></div>
+
+      <div class="acoes">
+        <button
+          type="button"
+          class="botao-secundario"
+          onclick="voltarPesquisa()"
+        >
+          Escolher outro paciente
+        </button>
+
+        <button
+          id="botaoSalvar"
+          type="button"
+          onclick="salvarDesfecho()"
+        >
+          Confirmar desfecho
+        </button>
+      </div>
+    </section>
+
+    <script>
+      let pacienteSelecionado = null;
+
+
+      document
+        .getElementById('termoBusca')
+        .addEventListener(
+          'keydown',
+          function (evento) {
+            if (evento.key === 'Enter') {
+              evento.preventDefault();
+              pesquisarPacientes();
+            }
+          }
+        );
+
+
+      window.addEventListener(
+        'load',
+        function () {
+          document
+            .getElementById('termoBusca')
+            .focus();
+        }
+      );
+            function pesquisarPacientes() {
+        const termo =
+          document
+            .getElementById('termoBusca')
+            .value
+            .trim();
+
+        if (!termo) {
+          mostrarMensagem(
+            'mensagemPesquisa',
+            'Informe o nome, ID, prontuário ou CPF.',
+            'erro'
+          );
+
+          return;
+        }
+
+        bloquearPesquisa(true);
+
+        mostrarMensagem(
+          'mensagemPesquisa',
+          'Pesquisando...',
+          'info'
+        );
+
+        document
+          .getElementById('resultados')
+          .innerHTML = '';
+
+        google.script.run
+          .withSuccessHandler(
+            exibirResultados
+          )
+          .withFailureHandler(
+            function (erro) {
+              bloquearPesquisa(false);
+
+              mostrarMensagem(
+                'mensagemPesquisa',
+                obterMensagemErro(erro),
+                'erro'
+              );
+            }
+          )
+          .buscarPacientesParaDesfecho(
+            termo
+          );
+      }
+
+
+      function exibirResultados(
+        resultados
+      ) {
+        bloquearPesquisa(false);
+
+        const container =
+          document.getElementById(
+            'resultados'
+          );
+
+        container.innerHTML = '';
+
+        if (
+          !resultados ||
+          resultados.length === 0
+        ) {
+          mostrarMensagem(
+            'mensagemPesquisa',
+            'Nenhum paciente foi encontrado.',
+            'info'
+          );
+
+          return;
+        }
+
+        ocultarMensagem(
+          'mensagemPesquisa'
+        );
+
+        resultados.forEach(
+          function (paciente) {
+            const botao =
+              document.createElement(
+                'button'
+              );
+
+            botao.type = 'button';
+            botao.className =
+              'resultado';
+
+            const nome =
+              document.createElement(
+                'span'
+              );
+
+            nome.className =
+              'resultado-nome';
+
+            nome.textContent =
+              paciente.nome;
+
+            const dados =
+              document.createElement(
+                'span'
+              );
+
+            dados.className =
+              'resultado-dados';
+
+            dados.textContent =
+              'ID: ' +
+              paciente.id +
+              ' | Prontuário: ' +
+              (
+                paciente.prontuario ||
+                '-'
+              ) +
+              ' | CPF: ' +
+              (
+                paciente.cpf ||
+                '-'
+              ) +
+              ' | Status: ' +
+              (
+                paciente.status ||
+                '-'
+              );
+
+            botao.appendChild(nome);
+            botao.appendChild(dados);
+
+            botao.addEventListener(
+              'click',
+              function () {
+                carregarPaciente(
+                  paciente.id
+                );
+              }
+            );
+
+            container.appendChild(
+              botao
+            );
+          }
+        );
+      }
+
+
+      function carregarPaciente(
+        idPaciente
+      ) {
+        mostrarMensagem(
+          'mensagemPesquisa',
+          'Carregando paciente...',
+          'info'
+        );
+
+        google.script.run
+          .withSuccessHandler(
+            exibirPaciente
+          )
+          .withFailureHandler(
+            function (erro) {
+              mostrarMensagem(
+                'mensagemPesquisa',
+                obterMensagemErro(erro),
+                'erro'
+              );
+            }
+          )
+          .obterPacienteParaDesfecho(
+            idPaciente
+          );
+      }
+
+
+      function exibirPaciente(
+        paciente
+      ) {
+        pacienteSelecionado =
+          paciente;
+
+        preencherTexto(
+          'pacienteNome',
+          paciente.nome
+        );
+
+        preencherTexto(
+          'pacienteId',
+          paciente.id
+        );
+
+        preencherTexto(
+          'pacienteProntuario',
+          paciente.prontuario
+        );
+
+        preencherTexto(
+          'pacienteCpf',
+          paciente.cpf
+        );
+
+        preencherTexto(
+          'pacienteTelefone',
+          paciente.telefone
+        );
+
+        preencherTexto(
+          'pacienteStatus',
+          paciente.status
+        );
+
+        preencherTexto(
+          'pacienteFisioterapeuta',
+          paciente.fisioterapeuta
+        );
+
+        preencherTexto(
+          'pacienteCiclo',
+          paciente.cicloNumero
+            ? (
+                paciente.cicloNumero +
+                (
+                  paciente.idCiclo
+                    ? ' — ' +
+                      paciente.idCiclo
+                    : ''
+                )
+              )
+            : 'Sem ciclo de sessões'
+        );
+
+        preencherTexto(
+          'pacientePrescritas',
+          paciente.sessoesPrescritas
+        );
+
+        preencherTexto(
+          'pacienteRealizadas',
+          paciente.sessoesRealizadas
+        );
+
+        preencherTexto(
+          'pacienteRestantes',
+          paciente.sessoesRestantes
+        );
+
+        preencherTexto(
+          'pacienteDesfecho',
+          paciente.desfechoAtual
+        );
+
+        document
+          .getElementById(
+            'opcaoDesfecho'
+          )
+          .value = '';
+
+        ocultarMensagem(
+          'mensagemRegistro'
+        );
+
+        document
+          .getElementById(
+            'painelPesquisa'
+          )
+          .classList.add('oculto');
+
+        document
+          .getElementById(
+            'painelPaciente'
+          )
+          .classList.remove('oculto');
+      }
+            function salvarDesfecho() {
+        if (!pacienteSelecionado) {
+          mostrarMensagem(
+            'mensagemRegistro',
+            'Selecione um paciente.',
+            'erro'
+          );
+
+          return;
+        }
+
+        const seletor =
+          document.getElementById(
+            'opcaoDesfecho'
+          );
+
+        const opcao =
+          seletor.value;
+
+        const textoOpcao =
+          seletor.options[
+            seletor.selectedIndex
+          ].text;
+
+        if (!opcao) {
+          mostrarMensagem(
+            'mensagemRegistro',
+            'Selecione o desfecho.',
+            'erro'
+          );
+
+          return;
+        }
+
+        const confirmado =
+          window.confirm(
+            'Paciente: ' +
+            pacienteSelecionado.nome +
+            '\nProntuário: ' +
+            (
+              pacienteSelecionado
+                .prontuario ||
+              '-'
+            ) +
+            '\n\nDesfecho: ' +
+            textoOpcao +
+            '\n\nDeseja confirmar?'
+          );
+
+        if (!confirmado) {
+          return;
+        }
+
+        bloquearRegistro(true);
+
+        mostrarMensagem(
+          'mensagemRegistro',
+          'Registrando desfecho...',
+          'info'
+        );
+
+        google.script.run
+          .withSuccessHandler(
+            function (resultado) {
+              bloquearRegistro(false);
+
+              mostrarMensagem(
+                'mensagemRegistro',
+                resultado.mensagem,
+                'sucesso'
+              );
+
+              setTimeout(
+                function () {
+                  google.script.host.close();
+                },
+                2200
+              );
+            }
+          )
+          .withFailureHandler(
+            function (erro) {
+              bloquearRegistro(false);
+
+              mostrarMensagem(
+                'mensagemRegistro',
+                obterMensagemErro(erro),
+                'erro'
+              );
+            }
+          )
+          .salvarDesfechoPaciente({
+            idPaciente:
+              pacienteSelecionado.id,
+            opcao: opcao
+          });
+      }
+
+
+      function voltarPesquisa() {
+        pacienteSelecionado = null;
+
+        document
+          .getElementById(
+            'painelPaciente'
+          )
+          .classList.add('oculto');
+
+        document
+          .getElementById(
+            'painelPesquisa'
+          )
+          .classList.remove('oculto');
+
+        ocultarMensagem(
+          'mensagemRegistro'
+        );
+
+        document
+          .getElementById(
+            'termoBusca'
+          )
+          .focus();
+      }
+
+
+      function preencherTexto(
+        id,
+        valor
+      ) {
+        document
+          .getElementById(id)
+          .textContent =
+            valor === null ||
+            valor === undefined ||
+            valor === ''
+              ? '-'
+              : String(valor);
+      }
+
+
+      function bloquearPesquisa(
+        bloqueado
+      ) {
+        document
+          .getElementById(
+            'botaoPesquisar'
+          )
+          .disabled = bloqueado;
+
+        document
+          .getElementById(
+            'termoBusca'
+          )
+          .disabled = bloqueado;
+      }
+
+
+      function bloquearRegistro(
+        bloqueado
+      ) {
+        document
+          .getElementById(
+            'botaoSalvar'
+          )
+          .disabled = bloqueado;
+
+        document
+          .getElementById(
+            'opcaoDesfecho'
+          )
+          .disabled = bloqueado;
+      }
+
+
+      function mostrarMensagem(
+        id,
+        texto,
+        tipo
+      ) {
+        const elemento =
+          document.getElementById(id);
+
+        elemento.textContent =
+          texto || '';
+
+        elemento.className =
+          'mensagem mensagem-' +
+          tipo;
+      }
+
+
+      function ocultarMensagem(id) {
+        const elemento =
+          document.getElementById(id);
+
+        elemento.textContent = '';
+
+        elemento.className =
+          'mensagem mensagem-info oculto';
+      }
+
+
+      function obterMensagemErro(
+        erro
+      ) {
+        if (
+          erro &&
+          erro.message
+        ) {
+          return erro.message;
+        }
+
+        return String(
+          erro ||
+          'Ocorreu um erro inesperado.'
+        );
+      }
+    </script>
+  </body>
+</html>
