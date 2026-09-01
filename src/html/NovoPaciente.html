@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+
+  <meta charset="UTF-8">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      color: #202124;
+      background: #f8f9fa;
+    }
+
+    h2 {
+      margin: 0 0 6px;
+      color: #274e13;
+      font-size: 22px;
+    }
+
+    .subtitulo {
+      margin-bottom: 18px;
+      color: #5f6368;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .bloco {
+      margin-bottom: 14px;
+      padding: 16px;
+      background: #ffffff;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+    }
+
+    .bloco h3 {
+      margin: 0 0 14px;
+      color: #274e13;
+      font-size: 15px;
+    }
+
+    .grade {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 16px;
+    }
+
+    .campo {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .campo-largo {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      margin-bottom: 5px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 9px;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: #202124;
+      background: #ffffff;
+      border: 1px solid #bdc1c6;
+      border-radius: 4px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #6aa84f;
+      outline: 2px solid #b6d7a8;
+    }
+
+    textarea {
+      min-height: 75px;
+      resize: vertical;
+    }
+
+    .dias {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .dia {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+      padding: 8px 10px;
+      font-weight: normal;
+      background: #f8f9fa;
+      border: 1px solid #dadce0;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .dia input {
+      width: auto;
+      margin: 0;
+    }
+
+    .obrigatorio {
+      color: #a50e0e;
+    }
+
+    .ajuda {
+      margin-top: 4px;
+      color: #5f6368;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .mensagem {
+      display: none;
+      margin-bottom: 14px;
+      padding: 11px;
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-line;
+      border-radius: 5px;
+    }
+
+    .mensagem.erro {
+      display: block;
+      color: #a50e0e;
+      background: #fce8e6;
+      border: 1px solid #f4c7c3;
+    }
+
+    .mensagem.sucesso {
+      display: block;
+      color: #137333;
+      background: #e6f4ea;
+      border: 1px solid #ceead6;
+    }
+
+    .carregando {
+      display: none;
+      margin-bottom: 14px;
+      padding: 10px;
+      color: #5f6368;
+      font-size: 13px;
+      text-align: center;
+      background: #ffffff;
+      border: 1px solid #dadce0;
+      border-radius: 5px;
+    }
+
+    .acoes {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    button {
+      padding: 10px 18px;
+      font-size: 13px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .cancelar {
+      color: #202124;
+      background: #e8eaed;
+    }
+
+    .salvar {
+      color: #ffffff;
+      font-weight: bold;
+      background: #38761d;
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 650px) {
+      .grade {
+        grid-template-columns: 1fr;
+      }
+
+      .campo-largo {
+        grid-column: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Novo paciente</h2>
+
+  <div class="subtitulo">
+    O ID e o número do prontuário serão criados automaticamente quando o cadastro for salvo.
+  </div>
+
+  <div
+    id="carregando"
+    class="carregando"
+  >
+    Carregando opções do SIGAF...
+  </div>
+
+  <div
+    id="mensagem"
+    class="mensagem"
+  ></div>
+
+  <form id="formulario">
+    <div class="bloco">
+      <h3>Identificação e contato</h3>
+
+      <div class="grade">
+        <div class="campo campo-largo">
+          <label for="nome">
+            Nome completo
+            <span class="obrigatorio">*</span>
+          </label>
+
+          <input
+            id="nome"
+            name="nome"
+            type="text"
+            autocomplete="off"
+            required
+          >
+        </div>
+
+        <div class="campo">
+          <label for="cpf">
+            CPF
+          </label>
+
+          <input
+            id="cpf"
+            name="cpf"
+            type="text"
+            maxlength="14"
+            placeholder="000.000.000-00"
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="campo">
+          <label for="telefone">
+            Telefone
+            <span class="obrigatorio">*</span>
+          </label>
+
+          <input
+            id="telefone"
+            name="telefone"
+            type="text"
+            maxlength="16"
+            placeholder="(31) 99999-9999"
+            autocomplete="off"
+            required
+          >
+        </div>
+
+        <div class="campo campo-largo">
+          <label for="fisioterapeuta">
+            Fisioterapeuta da avaliação
+          </label>
+
+          <select
+            id="fisioterapeuta"
+            name="fisioterapeuta"
+          >
+            <option value="">
+              Selecione
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="bloco">
+      <h3>Avaliação</h3>
+
+      <div class="grade">
+        <div class="campo">
+          <label for="dataAvaliacao">
+            Data da avaliação
+            <span class="obrigatorio">*</span>
+          </label>
+
+          <input
+            id="dataAvaliacao"
+            name="dataAvaliacao"
+            type="date"
+            required
+          >
+        </div>
+
+        <div class="campo">
+          <label for="horarioAvaliacao">
+            Horário da avaliação
+            <span class="obrigatorio">*</span>
+          </label>
+
+          <select
+            id="horarioAvaliacao"
+            name="horarioAvaliacao"
+            required
+          >
+            <option value="">
+              Selecione
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="bloco">
+      <h3>Planejamento das sessões</h3>
+
+      <div class="grade">
+        <div class="campo">
+          <label for="sessoesPrescritas">
+            Sessões prescritas
+          </label>
+
+          <input
+            id="sessoesPrescritas"
+            name="sessoesPrescritas"
+            type="number"
+            min="0"
+            max="20"
+            step="1"
+            value="0"
+          >
+
+          <div class="ajuda">
+            Deixe 0 quando a avaliação ainda não tiver sido realizada.
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="tipoAtendimento">
+            Tipo de atendimento
+          </label>
+
+          <select
+            id="tipoAtendimento"
+            name="tipoAtendimento"
+          >
+            <option value="">
+              Selecione
+            </option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="horarioSessao">
+            Horário preferencial das sessões
+          </label>
+
+          <select
+            id="horarioSessao"
+            name="horarioSessao"
+          >
+            <option value="">
+              Selecione
+            </option>
+          </select>
+        </div>
+
+        <div class="campo campo-largo">
+          <label>
+            Dias de preferência
+          </label>
+
+          <div class="dias">
+            <label class="dia">
+              <input
+                id="segunda"
+                name="segunda"
+                type="checkbox"
+              >
+              Segunda
+            </label>
+
+            <label class="dia">
+              <input
+                id="terca"
+                name="terca"
+                type="checkbox"
+              >
+              Terça
+            </label>
+
+            <label class="dia">
+              <input
+                id="quarta"
+                name="quarta"
+                type="checkbox"
+              >
+              Quarta
+            </label>
+
+            <label class="dia">
+              <input
+                id="quinta"
+                name="quinta"
+                type="checkbox"
+              >
+              Quinta
+            </label>
+
+            <label class="dia">
+              <input
+                id="sexta"
+                name="sexta"
+                type="checkbox"
+              >
+              Sexta
+            </label>
+          </div>
+
+          <div class="ajuda">
+            Os dias são obrigatórios quando houver sessões prescritas.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bloco">
+      <h3>Observação</h3>
+
+      <textarea
+        id="observacao"
+        name="observacao"
+        placeholder="Informações importantes para o atendimento ou agendamento."
+      ></textarea>
+    </div>
+
+    <div class="acoes">
+      <button
+        id="botaoCancelar"
+        type="button"
+        class="cancelar"
+      >
+        Cancelar
+      </button>
+
+      <button
+        id="botaoSalvar"
+        type="submit"
+        class="salvar"
+      >
+        Salvar paciente
+      </button>
+    </div>
+  </form>
+
+  <script>
+    document.addEventListener(
+      'DOMContentLoaded',
+      iniciarFormulario
+    );
+
+
+    function iniciarFormulario() {
+      document
+        .getElementById('formulario')
+        .addEventListener(
+          'submit',
+          salvarPaciente
+        );
+
+      document
+        .getElementById('botaoCancelar')
+        .addEventListener(
+          'click',
+          function() {
+            google.script.host.close();
+          }
+        );
+
+      document
+        .getElementById('cpf')
+        .addEventListener(
+          'input',
+          aplicarMascaraCpf
+        );
+
+      document
+        .getElementById('telefone')
+        .addEventListener(
+          'input',
+          aplicarMascaraTelefone
+        );
+
+      document
+        .getElementById('sessoesPrescritas')
+        .addEventListener(
+          'input',
+          atualizarObrigatoriedadeSessoes
+        );
+
+      carregarOpcoes();
+    }
+
+
+    function carregarOpcoes() {
+      mostrarCarregamento(true);
+      desabilitarFormulario(true);
+
+      google.script.run
+        .withSuccessHandler(
+          function(opcoes) {
+            preencherOpcoes(opcoes);
+
+            mostrarCarregamento(false);
+            desabilitarFormulario(false);
+
+            atualizarObrigatoriedadeSessoes();
+          }
+        )
+        .withFailureHandler(
+          function(erro) {
+            mostrarCarregamento(false);
+
+            exibirMensagem(
+              obterMensagemErro(erro),
+              'erro'
+            );
+          }
+        )
+        .obterOpcoesFormularioPaciente();
+    }
+
+
+    function preencherOpcoes(opcoes) {
+      preencherSelect(
+        'horarioAvaliacao',
+        opcoes.horarios || []
+      );
+
+      preencherSelect(
+        'horarioSessao',
+        opcoes.horarios || []
+      );
+
+      preencherSelect(
+        'tipoAtendimento',
+        opcoes.tiposAtendimento || []
+      );
+
+      preencherSelect(
+        'fisioterapeuta',
+        opcoes.fisioterapeutas || []
+      );
+    }
+
+
+    function preencherSelect(id, valores) {
+      const select =
+        document.getElementById(id);
+
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      valores.forEach(function(valor) {
+        const texto = String(
+          valor || ''
+        ).trim();
+
+        if (!texto) {
+          return;
+        }
+
+        const opcao =
+          document.createElement('option');
+
+        opcao.value = texto;
+        opcao.textContent = texto;
+
+        select.appendChild(opcao);
+      });
+    }
+
+
+    function atualizarObrigatoriedadeSessoes() {
+      const quantidade = Number(
+        document.getElementById(
+          'sessoesPrescritas'
+        ).value || 0
+      );
+
+      const possuiSessoes =
+        quantidade > 0;
+
+      document.getElementById(
+        'tipoAtendimento'
+      ).required = possuiSessoes;
+
+      document.getElementById(
+        'horarioSessao'
+      ).required = possuiSessoes;
+    }
+
+
+    function salvarPaciente(evento) {
+      evento.preventDefault();
+
+      ocultarMensagem();
+
+      const formulario =
+        document.getElementById(
+          'formulario'
+        );
+
+      if (!formulario.reportValidity()) {
+        return;
+      }
+
+      const quantidadeSessoes = Number(
+        document.getElementById(
+          'sessoesPrescritas'
+        ).value || 0
+      );
+
+      const possuiDiaSelecionado = [
+        'segunda',
+        'terca',
+        'quarta',
+        'quinta',
+        'sexta'
+      ].some(function(id) {
+        return document
+          .getElementById(id)
+          .checked;
+      });
+
+      if (
+        quantidadeSessoes > 0 &&
+        !possuiDiaSelecionado
+      ) {
+        exibirMensagem(
+          'Marque pelo menos um dia de preferência para as sessões.',
+          'erro'
+        );
+
+        return;
+      }
+
+      bloquearSalvamento(true);
+
+      const dados = {
+        nome:
+          document.getElementById(
+            'nome'
+          ).value,
+
+        cpf:
+          document.getElementById(
+            'cpf'
+          ).value,
+
+        telefone:
+          document.getElementById(
+            'telefone'
+          ).value,
+
+        fisioterapeuta:
+          document.getElementById(
+            'fisioterapeuta'
+          ).value,
+
+        dataAvaliacao:
+          document.getElementById(
+            'dataAvaliacao'
+          ).value,
+
+        horarioAvaliacao:
+          document.getElementById(
+            'horarioAvaliacao'
+          ).value,
+
+        sessoesPrescritas:
+          document.getElementById(
+            'sessoesPrescritas'
+          ).value,
+
+        tipoAtendimento:
+          document.getElementById(
+            'tipoAtendimento'
+          ).value,
+
+        horarioSessao:
+          document.getElementById(
+            'horarioSessao'
+          ).value,
+
+        segunda:
+          document.getElementById(
+            'segunda'
+          ).checked,
+
+        terca:
+          document.getElementById(
+            'terca'
+          ).checked,
+
+        quarta:
+          document.getElementById(
+            'quarta'
+          ).checked,
+
+        quinta:
+          document.getElementById(
+            'quinta'
+          ).checked,
+
+        sexta:
+          document.getElementById(
+            'sexta'
+          ).checked,
+
+        observacao:
+          document.getElementById(
+            'observacao'
+          ).value
+      };
+
+      google.script.run
+        .withSuccessHandler(
+          processarResultadoSalvamento
+        )
+        .withFailureHandler(
+          function(erro) {
+            exibirMensagem(
+              obterMensagemErro(erro),
+              'erro'
+            );
+
+            bloquearSalvamento(false);
+          }
+        )
+        .salvarNovoPaciente(dados);
+    }
+
+
+    function processarResultadoSalvamento(
+      resultado
+    ) {
+      if (
+        !resultado ||
+        !resultado.sucesso
+      ) {
+        exibirMensagem(
+          resultado &&
+          resultado.mensagem
+            ? resultado.mensagem
+            : 'Não foi possível salvar o paciente.',
+          'erro'
+        );
+
+        bloquearSalvamento(false);
+
+        return;
+      }
+
+      exibirMensagem(
+        resultado.mensagem,
+        'sucesso'
+      );
+
+      document
+        .getElementById('formulario')
+        .reset();
+
+      atualizarObrigatoriedadeSessoes();
+
+      setTimeout(function() {
+        google.script.host.close();
+      }, 3000);
+    }
+
+
+    function bloquearSalvamento(bloquear) {
+      const botaoSalvar =
+        document.getElementById(
+          'botaoSalvar'
+        );
+
+      const botaoCancelar =
+        document.getElementById(
+          'botaoCancelar'
+        );
+
+      botaoSalvar.disabled = bloquear;
+      botaoCancelar.disabled = bloquear;
+
+      botaoSalvar.textContent =
+        bloquear
+          ? 'Salvando...'
+          : 'Salvar paciente';
+    }
+
+
+    function desabilitarFormulario(
+      desabilitar
+    ) {
+      const elementos =
+        document.querySelectorAll(
+          '#formulario input, ' +
+          '#formulario select, ' +
+          '#formulario textarea, ' +
+          '#formulario button'
+        );
+
+      elementos.forEach(function(elemento) {
+        elemento.disabled = desabilitar;
+      });
+    }
+
+
+    function mostrarCarregamento(mostrar) {
+      document.getElementById(
+        'carregando'
+      ).style.display =
+        mostrar
+          ? 'block'
+          : 'none';
+    }
+
+
+    function exibirMensagem(texto, tipo) {
+      const mensagem =
+        document.getElementById(
+          'mensagem'
+        );
+
+      mensagem.className =
+        'mensagem ' + tipo;
+
+      mensagem.textContent =
+        texto || '';
+    }
+
+
+    function ocultarMensagem() {
+      const mensagem =
+        document.getElementById(
+          'mensagem'
+        );
+
+      mensagem.className =
+        'mensagem';
+
+      mensagem.textContent = '';
+    }
+
+
+    function obterMensagemErro(erro) {
+      if (!erro) {
+        return 'Ocorreu um erro inesperado.';
+      }
+
+      if (erro.message) {
+        return erro.message;
+      }
+
+      return String(erro);
+    }
+
+
+    function aplicarMascaraCpf(evento) {
+      let valor = evento.target.value
+        .replace(/\D/g, '')
+        .slice(0, 11);
+
+      if (valor.length > 9) {
+        valor = valor.replace(
+          /^(\d{3})(\d{3})(\d{3})(\d{1,2})$/,
+          '$1.$2.$3-$4'
+        );
+      } else if (valor.length > 6) {
+        valor = valor.replace(
+          /^(\d{3})(\d{3})(\d{1,3})$/,
+          '$1.$2.$3'
+        );
+      } else if (valor.length > 3) {
+        valor = valor.replace(
+          /^(\d{3})(\d{1,3})$/,
+          '$1.$2'
+        );
+      }
+
+      evento.target.value = valor;
+    }
+
+
+    function aplicarMascaraTelefone(evento) {
+      let valor = evento.target.value
+        .replace(/\D/g, '')
+        .slice(0, 11);
+
+      if (valor.length > 10) {
+        valor = valor.replace(
+          /^(\d{2})(\d{5})(\d{4})$/,
+          '($1) $2-$3'
+        );
+      } else if (valor.length > 6) {
+        valor = valor.replace(
+          /^(\d{2})(\d{4})(\d{1,4})$/,
+          '($1) $2-$3'
+        );
+      } else if (valor.length > 2) {
+        valor = valor.replace(
+          /^(\d{2})(\d+)$/,
+          '($1) $2'
+        );
+      } else if (valor.length > 0) {
+        valor = valor.replace(
+          /^(\d*)$/,
+          '($1'
+        );
+      }
+
+      evento.target.value = valor;
+    }
+  </script>
+</body>
+</html>
