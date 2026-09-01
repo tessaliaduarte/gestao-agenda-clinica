@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+
+    <meta charset="UTF-8">
+
+    <style>
+      :root {
+        --azul: #4f81bd;
+        --azul-escuro: #315f94;
+        --azul-claro: #eaf2fb;
+        --verde: #2e7d32;
+        --verde-claro: #e8f5e9;
+        --vermelho: #b3261e;
+        --vermelho-claro: #fce8e6;
+        --amarelo: #8a5a00;
+        --amarelo-claro: #fff4ce;
+        --cinza-borda: #d6d9de;
+        --cinza-fundo: #f7f8fa;
+        --texto: #202124;
+        --texto-secundario: #5f6368;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 24px;
+        color: var(--texto);
+        background: #ffffff;
+        font-family:
+          Arial,
+          Helvetica,
+          sans-serif;
+        font-size: 14px;
+      }
+
+      h1 {
+        margin: 0 0 6px;
+        color: var(--azul-escuro);
+        font-size: 24px;
+      }
+
+      h2 {
+        margin: 0 0 14px;
+        color: var(--azul-escuro);
+        font-size: 18px;
+      }
+
+      p {
+        line-height: 1.5;
+      }
+
+      .subtitulo {
+        margin: 0 0 22px;
+        color: var(--texto-secundario);
+      }
+
+      .painel {
+        margin-bottom: 18px;
+        padding: 18px;
+        border: 1px solid var(--cinza-borda);
+        border-radius: 10px;
+        background: #ffffff;
+      }
+
+      .pesquisa {
+        display: flex;
+        gap: 10px;
+      }
+
+      input {
+        width: 100%;
+        min-height: 42px;
+        padding: 10px 12px;
+        border: 1px solid #aeb4bc;
+        border-radius: 6px;
+        font-size: 15px;
+        outline: none;
+      }
+
+      input:focus {
+        border-color: var(--azul);
+        box-shadow:
+          0 0 0 2px rgba(79, 129, 189, 0.18);
+      }
+
+      button {
+        min-height: 42px;
+        padding: 10px 18px;
+        border: 0;
+        border-radius: 6px;
+        background: var(--azul);
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      button:hover:not(:disabled) {
+        background: var(--azul-escuro);
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+      }
+
+      .botao-secundario {
+        border: 1px solid var(--cinza-borda);
+        background: #ffffff;
+        color: var(--texto);
+      }
+
+      .botao-secundario:hover:not(:disabled) {
+        background: var(--cinza-fundo);
+      }
+
+      .botao-perigo {
+        background: var(--vermelho);
+      }
+
+      .botao-perigo:hover:not(:disabled) {
+        background: #8c1d18;
+      }
+
+      .lista-resultados {
+        display: grid;
+        gap: 10px;
+      }
+
+      .paciente {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 14px;
+        border: 1px solid var(--cinza-borda);
+        border-radius: 8px;
+        background: var(--cinza-fundo);
+      }
+
+      .paciente strong {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 15px;
+      }
+
+      .paciente-dados {
+        color: var(--texto-secundario);
+        line-height: 1.45;
+      }
+
+      .grade {
+        display: grid;
+        grid-template-columns:
+          repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .campo {
+        min-height: 70px;
+        padding: 12px;
+        border-radius: 7px;
+        background: var(--cinza-fundo);
+      }
+
+      .campo span {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--texto-secundario);
+        font-size: 12px;
+      }
+
+      .campo strong {
+        overflow-wrap: anywhere;
+      }
+
+      table {
+        width: 100%;
+        margin-top: 12px;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 9px 8px;
+        border: 1px solid var(--cinza-borda);
+        text-align: left;
+        vertical-align: middle;
+      }
+
+      th {
+        background: var(--azul-claro);
+        color: var(--azul-escuro);
+        font-size: 12px;
+      }
+
+      .mensagem {
+        margin-bottom: 16px;
+        padding: 13px 15px;
+        border-radius: 7px;
+        line-height: 1.5;
+      }
+
+      .mensagem-erro {
+        border: 1px solid #f3b5b1;
+        background: var(--vermelho-claro);
+        color: var(--vermelho);
+      }
+
+      .mensagem-aviso {
+        border: 1px solid #e8ce8b;
+        background: var(--amarelo-claro);
+        color: var(--amarelo);
+      }
+
+      .mensagem-sucesso {
+        border: 1px solid #a5d6a7;
+        background: var(--verde-claro);
+        color: var(--verde);
+      }
+
+      .acoes {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .oculto {
+        display: none !important;
+      }
+
+      .carregando {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 14px 0;
+        color: var(--texto-secundario);
+      }
+
+      .indicador {
+        width: 18px;
+        height: 18px;
+        border: 3px solid #d9e3f0;
+        border-top-color: var(--azul);
+        border-radius: 50%;
+        animation: girar 0.8s linear infinite;
+      }
+
+      .passos {
+        margin: 10px 0 0;
+        padding-left: 22px;
+        line-height: 1.65;
+      }
+
+      @keyframes girar {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 720px) {
+        body {
+          padding: 16px;
+        }
+
+        .pesquisa,
+        .paciente,
+        .acoes {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .grade {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Corrigir agendamento</h1>
+
+    <p class="subtitulo">
+      Localize o paciente e desfaça com segurança
+      um ciclo agendado incorretamente.
+    </p>
+
+    <div id="mensagem"></div>
+
+    <section
+      id="painelPesquisa"
+      class="painel"
+    >
+      <h2>Pesquisar paciente</h2>
+
+      <div class="pesquisa">
+        <input
+          id="termoPesquisa"
+          type="text"
+          placeholder="Nome, CPF, prontuário ou ID"
+          autocomplete="off"
+        >
+
+        <button
+          id="botaoPesquisar"
+          type="button"
+          onclick="pesquisarPacientes()"
+        >
+          Pesquisar
+        </button>
+      </div>
+
+      <div
+        id="carregando"
+        class="carregando oculto"
+      >
+        <div class="indicador"></div>
+        <span>Processando...</span>
+      </div>
+
+      <div
+        id="resultados"
+        class="lista-resultados"
+      ></div>
+    </section>
+
+    <section
+      id="painelDetalhes"
+      class="painel oculto"
+    >
+      <h2>Conferir ciclo</h2>
+
+      <div
+        id="dadosPaciente"
+        class="grade"
+      ></div>
+
+      <div
+        id="dadosCiclo"
+        class="grade"
+      ></div>
+
+      <div id="avisoCiclo"></div>
+
+      <div id="tabelaSessoes"></div>
+
+      <div class="acoes">
+        <button
+          type="button"
+          class="botao-secundario"
+          onclick="voltarPesquisa()"
+        >
+          Voltar
+        </button>
+
+        <button
+          id="botaoCorrigir"
+          type="button"
+          class="botao-perigo"
+          onclick="confirmarCorrecao()"
+        >
+          Desfazer agendamento incorreto
+        </button>
+      </div>
+    </section>
+
+    <section
+      id="painelSucesso"
+      class="painel oculto"
+    >
+      <h2>Agendamento desfeito</h2>
+
+      <div
+        id="resumoSucesso"
+        class="mensagem mensagem-sucesso"
+      ></div>
+
+      <p>
+        As sessões antigas foram preservadas na aba
+        <strong>Histórico de Ajustes</strong>.
+      </p>
+
+      <p><strong>Próximos passos:</strong></p>
+
+      <ol class="passos">
+        <li>Feche esta janela.</li>
+        <li>
+          Corrija o plano em
+          <strong>
+            SIGAF → Pacientes → Editar paciente
+          </strong>,
+          caso seja necessário.
+        </li>
+        <li>
+          Selecione o paciente no Cadastro.
+        </li>
+        <li>
+          Use
+          <strong>
+            SIGAF → Sessões → Consultar disponibilidade
+          </strong>.
+        </li>
+        <li>
+          Confirme a nova opção correta.
+        </li>
+      </ol>
+
+      <div class="acoes">
+        <button
+          type="button"
+          onclick="google.script.host.close()"
+        >
+          Fechar
+        </button>
+      </div>
+    </section>
+
+    <script>
+      let dadosSelecionados = null;
+
+
+      document
+        .getElementById('termoPesquisa')
+        .addEventListener(
+          'keydown',
+          function(evento) {
+            if (evento.key === 'Enter') {
+              evento.preventDefault();
+              pesquisarPacientes();
+            }
+          }
+        );
+
+
+      document
+        .getElementById('termoPesquisa')
+        .focus();
+              function pesquisarPacientes() {
+        const termo =
+          document
+            .getElementById(
+              'termoPesquisa'
+            )
+            .value
+            .trim();
+
+        limparMensagem();
+        limparResultados();
+
+        if (!termo) {
+          mostrarErro(
+            'Informe o nome, CPF, prontuário ou ID do paciente.'
+          );
+          return;
+        }
+
+        definirCarregando(true);
+
+        google.script.run
+          .withSuccessHandler(
+            function(resultados) {
+              definirCarregando(false);
+              exibirResultados(
+                resultados || []
+              );
+            }
+          )
+          .withFailureHandler(
+            tratarErro
+          )
+          .pesquisarPacientesCorrecaoAgendamento(
+            termo
+          );
+      }
+
+
+      function exibirResultados(resultados) {
+        const destino =
+          document.getElementById(
+            'resultados'
+          );
+
+        if (resultados.length === 0) {
+          destino.innerHTML =
+            '<div class="mensagem mensagem-aviso">' +
+              'Nenhum paciente foi encontrado.' +
+            '</div>';
+          return;
+        }
+
+        destino.innerHTML =
+          resultados.map(
+            function(paciente) {
+              return (
+                '<div class="paciente">' +
+                  '<div>' +
+                    '<strong>' +
+                      escaparHtml(
+                        paciente.nome
+                      ) +
+                    '</strong>' +
+                    '<div class="paciente-dados">' +
+                      'Prontuário: ' +
+                      escaparHtml(
+                        paciente.prontuario
+                      ) +
+                      ' | CPF: ' +
+                      escaparHtml(
+                        paciente.cpf
+                      ) +
+                      '<br>Status: ' +
+                      escaparHtml(
+                        paciente.status
+                      ) +
+                      ' | Sessões: ' +
+                      escaparHtml(
+                        paciente.sessoesRealizadas
+                      ) +
+                      '/' +
+                      escaparHtml(
+                        paciente.sessoesPrescritas
+                      ) +
+                    '</div>' +
+                  '</div>' +
+                  '<button type="button" ' +
+                    'onclick="selecionarPaciente(' +
+                      "'" +
+                      escaparAtributoJs(
+                        paciente.id
+                      ) +
+                      "'" +
+                    ')">' +
+                    'Selecionar' +
+                  '</button>' +
+                '</div>'
+              );
+            }
+          ).join('');
+      }
+
+
+      function selecionarPaciente(
+        idPaciente
+      ) {
+        limparMensagem();
+        definirCarregando(true);
+
+        google.script.run
+          .withSuccessHandler(
+            function(dados) {
+              definirCarregando(false);
+              dadosSelecionados = dados;
+              exibirDetalhes(dados);
+            }
+          )
+          .withFailureHandler(
+            tratarErro
+          )
+          .obterDadosCorrecaoAgendamento(
+            idPaciente
+          );
+      }
+
+
+      function exibirDetalhes(dados) {
+        document
+          .getElementById(
+            'painelPesquisa'
+          )
+          .classList.add('oculto');
+
+        document
+          .getElementById(
+            'painelDetalhes'
+          )
+          .classList.remove('oculto');
+
+        document
+          .getElementById(
+            'dadosPaciente'
+          )
+          .innerHTML =
+            criarCampo(
+              'Paciente',
+              dados.paciente.nome
+            ) +
+            criarCampo(
+              'Prontuário',
+              dados.paciente.prontuario
+            ) +
+            criarCampo(
+              'Status atual',
+              dados.paciente.status
+            );
+
+        document
+          .getElementById(
+            'dadosCiclo'
+          )
+          .innerHTML =
+            criarCampo(
+              'Ciclo',
+              dados.ciclo.numero +
+                ' — ' +
+                dados.ciclo.id
+            ) +
+            criarCampo(
+              'Período agendado',
+              dados.ciclo.primeiraData +
+                ' a ' +
+                dados.ciclo.ultimaData
+            ) +
+            criarCampo(
+              'Sessões',
+              dados.ciclo.quantidadeSessoes
+            ) +
+            criarCampo(
+              'Horário',
+              dados.ciclo.horario
+            ) +
+            criarCampo(
+              'Fisioterapeuta',
+              dados.ciclo.fisioterapeuta
+            ) +
+            criarCampo(
+              'Tipo',
+              dados.ciclo.tipoGrupo
+            );
+
+        const aviso =
+          document.getElementById(
+            'avisoCiclo'
+          );
+
+        const botao =
+          document.getElementById(
+            'botaoCorrigir'
+          );
+
+        if (dados.podeCorrigir) {
+          aviso.innerHTML =
+            '<div class="mensagem mensagem-aviso">' +
+              '<strong>Atenção:</strong> ' +
+              'as sessões listadas abaixo serão arquivadas e removidas da agenda ativa. ' +
+              'A avaliação e o plano do paciente serão preservados.' +
+            '</div>';
+
+          botao.disabled = false;
+        } else {
+          aviso.innerHTML =
+            '<div class="mensagem mensagem-erro">' +
+              '<strong>Correção bloqueada:</strong> ' +
+              escaparHtml(
+                dados.motivoBloqueio
+              ) +
+            '</div>';
+
+          botao.disabled = true;
+        }
+
+        exibirTabelaSessoes(
+          dados.sessoes
+        );
+      }
+
+
+      function exibirTabelaSessoes(
+        sessoes
+      ) {
+        const linhas =
+          sessoes.map(function(sessao) {
+            return (
+              '<tr>' +
+                '<td>' +
+                  escaparHtml(
+                    sessao.idAgendamento
+                  ) +
+                '</td>' +
+                '<td>' +
+                  escaparHtml(
+                    sessao.numero
+                  ) +
+                '</td>' +
+                '<td>' +
+                  escaparHtml(
+                    sessao.data
+                  ) +
+                '</td>' +
+                '<td>' +
+                  escaparHtml(
+                    sessao.dia
+                  ) +
+                '</td>' +
+                '<td>' +
+                  escaparHtml(
+                    sessao.horario
+                  ) +
+                '</td>' +
+                '<td>' +
+                  escaparHtml(
+                    sessao.status
+                  ) +
+                '</td>' +
+              '</tr>'
+            );
+          }).join('');
+
+        document
+          .getElementById(
+            'tabelaSessoes'
+          )
+          .innerHTML =
+            '<table>' +
+              '<thead>' +
+                '<tr>' +
+                  '<th>ID</th>' +
+                  '<th>Nº</th>' +
+                  '<th>Data</th>' +
+                  '<th>Dia</th>' +
+                  '<th>Horário</th>' +
+                  '<th>Status</th>' +
+                '</tr>' +
+              '</thead>' +
+              '<tbody>' +
+                linhas +
+              '</tbody>' +
+            '</table>';
+      }
+            function confirmarCorrecao() {
+        if (
+          !dadosSelecionados ||
+          !dadosSelecionados.podeCorrigir
+        ) {
+          return;
+        }
+
+        const confirmado = window.confirm(
+          'Confirma o desfazimento deste agendamento?\n\n' +
+          'As sessões serão arquivadas no Histórico de Ajustes e o paciente voltará para reagendamento.'
+        );
+
+        if (!confirmado) {
+          return;
+        }
+
+        limparMensagem();
+        definirCarregando(true);
+
+        document
+          .getElementById(
+            'botaoCorrigir'
+          )
+          .disabled = true;
+
+        google.script.run
+          .withSuccessHandler(
+            concluirCorrecao
+          )
+          .withFailureHandler(
+            function(erro) {
+              document
+                .getElementById(
+                  'botaoCorrigir'
+                )
+                .disabled = false;
+
+              tratarErro(erro);
+            }
+          )
+          .corrigirAgendamentoDoCiclo(
+            dadosSelecionados.paciente.id,
+            dadosSelecionados.ciclo.id
+          );
+      }
+
+
+      function concluirCorrecao(
+        resultado
+      ) {
+        definirCarregando(false);
+
+        document
+          .getElementById(
+            'painelDetalhes'
+          )
+          .classList.add('oculto');
+
+        document
+          .getElementById(
+            'painelSucesso'
+          )
+          .classList.remove('oculto');
+
+        document
+          .getElementById(
+            'resumoSucesso'
+          )
+          .innerHTML =
+            '<strong>' +
+              escaparHtml(
+                resultado.mensagem
+              ) +
+            '</strong><br>' +
+            'Paciente: ' +
+            escaparHtml(
+              resultado.paciente
+            ) +
+            '<br>Prontuário: ' +
+            escaparHtml(
+              resultado.prontuario
+            ) +
+            '<br>Sessões arquivadas: ' +
+            escaparHtml(
+              resultado.sessoesArquivadas
+            ) +
+            '<br>ID do ajuste: ' +
+            escaparHtml(
+              resultado.idAjuste
+            );
+      }
+
+
+      function voltarPesquisa() {
+        dadosSelecionados = null;
+
+        document
+          .getElementById(
+            'painelDetalhes'
+          )
+          .classList.add('oculto');
+
+        document
+          .getElementById(
+            'painelPesquisa'
+          )
+          .classList.remove('oculto');
+
+        limparMensagem();
+      }
+
+
+      function criarCampo(
+        rotulo,
+        valor
+      ) {
+        return (
+          '<div class="campo">' +
+            '<span>' +
+              escaparHtml(rotulo) +
+            '</span>' +
+            '<strong>' +
+              escaparHtml(
+                valor === null ||
+                valor === undefined ||
+                valor === ''
+                  ? '-'
+                  : valor
+              ) +
+            '</strong>' +
+          '</div>'
+        );
+      }
+
+
+      function definirCarregando(ativo) {
+        document
+          .getElementById('carregando')
+          .classList.toggle(
+            'oculto',
+            !ativo
+          );
+
+        document
+          .getElementById(
+            'botaoPesquisar'
+          )
+          .disabled = ativo;
+      }
+
+
+      function limparResultados() {
+        document
+          .getElementById('resultados')
+          .innerHTML = '';
+      }
+
+
+      function tratarErro(erro) {
+        definirCarregando(false);
+
+        const mensagem =
+          erro && erro.message
+            ? erro.message
+            : String(erro);
+
+        mostrarErro(mensagem);
+      }
+
+
+      function mostrarErro(texto) {
+        document
+          .getElementById('mensagem')
+          .innerHTML =
+            '<div class="mensagem mensagem-erro">' +
+              escaparHtml(texto) +
+            '</div>';
+      }
+
+
+      function limparMensagem() {
+        document
+          .getElementById('mensagem')
+          .innerHTML = '';
+      }
+
+
+      function escaparHtml(valor) {
+        return String(
+          valor === null ||
+          valor === undefined
+            ? ''
+            : valor
+        )
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+
+      function escaparAtributoJs(valor) {
+        return String(valor || '')
+          .replace(/\\/g, '\\\\')
+          .replace(/'/g, "\\'");
+      }
+    </script>
+  </body>
+</html>
