@@ -19,7 +19,31 @@ Também foram desenvolvidas interfaces em HTML para facilitar operações como c
 O sistema foi estruturado de forma modular, separando as diferentes responsabilidades da aplicação.
 
 ---
+## Arquitetura da solução
 
+```mermaid
+flowchart TD
+    A[Usuário] --> B[Interfaces HTML]
+    B --> C[Google Apps Script]
+
+    C --> D[Cadastro de pacientes]
+    C --> E[Agenda e agendamentos]
+    C --> F[Vagas e disponibilidade]
+    C --> G[Automações e pendências]
+    C --> H[Relatórios]
+
+    D --> I[(Google Sheets)]
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+
+    H --> J[Google Drive]
+    H --> K[Google Docs]
+    H --> L[Excel / XLSX]
+```
+
+O Google Sheets funciona como base de dados da aplicação, enquanto o Google Apps Script concentra as regras de negócio, validações e automações. As interfaces HTML permitem a interação com os principais fluxos do sistema.
 ## Principais funcionalidades
 
 - Cadastro e edição de pacientes
