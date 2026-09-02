@@ -5,7 +5,11 @@ Sistema desenvolvido com **Google Apps Script e Google Sheets** para organizaç�
 O projeto surgiu da necessidade de centralizar informações que antes exigiam acompanhamento manual, criando fluxos automáticos para cadastro, agenda, sessões, pendências, bloqueios e geração de relatórios.
 
 ---
+## Demonstração
 
+![Demonstração do sistema](docs/demo-sistema.gif)
+
+---
 ## Sobre o projeto
 
 A aplicação utiliza uma planilha Google Sheets como base de dados e o Google Apps Script para implementar as regras de negócio e as automações.
